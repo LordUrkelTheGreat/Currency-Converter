@@ -5,6 +5,7 @@
 #   Rates:          The exchange rate of currencies with the USD base currency
 
 # Importing the necessary libraries
+#import pip._vendor.requests as requests
 import requests
 from tkinter import *
 import tkinter as tk
@@ -34,3 +35,33 @@ class realTimeCurrencyConverter():
 
         # Return converted amount
         return amount
+
+# Creating a currency converter UI class
+class currencyConverterUI(tk.Tk):
+    # Create class constructor
+    def __init__(self, converter):
+        tk.Tk.__init__(self)
+        self.title = 'Currency Converter'
+        self.currencyConverter = converter
+
+        # Currency converter object is used to convert currencies
+        # The code below will create a Frame
+        self.geometry("500x200")
+
+        # Title
+        self.introLabel = Label(self, text = 'Welcome to the Real Time Currency Convertor', fg = 'blue', relief = tk.RAISED, borderwidth = 3)
+        self.introLabel.config(font = ('Courier', 15, 'bold'))
+
+        # 2nd label
+        self.dateLabel = Label(self, text = f"1 Indian Rupee equals {self.currencyConverter.convert('INR', 'USD', 1)} USD \n Date: {self.currencyConverter.data['date']}", relief = tk.GROOVE, borderwidth = 5)
+
+        # Label placement
+        self.introLabel.place(x = 10, y = 10)
+        self.dateLabel.place(x = 130, y = 50)
+
+# Opens GUI for an infinite loop
+if __name__ == '__main__':
+    url = 'https://api.exchangerate-api.com/v4/latest/USD'
+    converter = realTimeCurrencyConverter(url)
+    currencyConverterUI(converter)
+    mainloop()

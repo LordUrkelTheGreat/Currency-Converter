@@ -19,3 +19,18 @@ class realTimeCurrencyConverter():
         # Finally all of it gets stored it into data
         self.data = requests.get(url).json()
         self.currencies = self.data['rates']
+
+    # Converts whatever amount of currency inputed to the requested currency
+    def convert(self, fromCurrency, toCurrency, amount):
+        # Store amount into dummy variable
+        initialAmount = amount
+
+        # If fromCurrency is not USD then convert it to USD (our base currency)
+        if fromCurrency != 'USD':
+            amount = (amount / self.currencies[fromCurrency])
+
+        # Limit the precision to 4 decimal places
+        amount = round(amount * self.currencies[toCurrency], 4)
+
+        # Return converted amount
+        return amount

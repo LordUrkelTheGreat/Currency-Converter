@@ -10,6 +10,7 @@ import requests
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
+import re
 
 # Creating a currency converter class which will allow us to get the real-time exchange rate, convert the currency, and then return the converted amount
 class realTimeCurrencyConverter():
@@ -59,9 +60,58 @@ class currencyConverterUI(tk.Tk):
         self.introLabel.place(x = 10, y = 10)
         self.dateLabel.place(x = 130, y = 50)
 
+        # Entry box
+        # restrictNumberOnly function will restrict the user from entering an invalid number (which will be later defined)
+        valid = (self.register(self.restrictNumberOnly), '%d', '%P')
+        self.amountField = Entry(self, bd = 3, relief = tk.RIDGE, justify = tk.CENTER, validate = 'key', validatecommand = valid)
+        self.convertedAmountFieldLabel = Label(self, text = '', fg = 'black', bg = 'white', relief = tk.RIDGE, justify = tk.CENTER, width = 17, borderwidth = 3)
+
+        # Dropdown
+        self.fromCurrencyVariable = StringVar(self)
+        # Default value
+        self.fromCurrencyVariable.set("INR")
+        self.toCurrencyVariable = StringVar(self)
+        # Default value
+        self.toCurrencyVariable.set("USD")
+
+        # Font
+        font = ("Courier", 12, "bold")
+        self.option_add('*TCombobox*Listbox.font', font)
+        self.fromCurrencyDropdown = ttk.Combobox(self, textvariable = self.fromCurrencyVariable, values = list(self.currencyConverter.currencies.keys()), font = font, state = 'readonly', width = 12, justify = tk.CENTER)
+        self.toCurrencyDropdown = ttk.Combobox(self, textvariable = self.toCurrencyVariable, values = list(self.currencyConverter.currencies.keys()), font = font, state = 'readonly', width = 12, justify = tk.CENTER)
+
+        # Placement
+        self.fromCurrencyDropdown.place(x = 30, y = 120)
+        self.amountField.place(x = 36, y = 150)
+        self.toCurrencyDropdown.place(x = 340, y = 120)
+        self.convertedAmountFieldLabel.place(x = 346, y = 150)
+
+        # Convert button
+        self.convertButton = Button(self, text = "Convert", fg = "black", command = self.perform)
+        self.convertButton.config(font = ('Courier', 10, 'bold'))
+        self.convertButton.place(x = 225, y = 135)
+
+    # Takes the user input and converts the amount into the desired currency and prints it
+    def perform(self):
+        amount = float(self.amountField.get())
+        fromCurrency = self.fromCurrencyVariable.get()
+        toCurrency = self.toCurrencyVariable.get()
+
+        convertedAmount = self.currencyConverter.convert(fromCurrency, toCurrency, amount)
+        convertedAmount = round(convertedAmount, 2)
+
+        self.convertedAmountFieldLabel.config(text = str(convertedAmount))
+
+    # Creates a restriction in the entry box so that user can only enter a number in the amount field
+    def restrictNumberOnly(self, action, string):
+        regex = re.compile(r"[0-9,]*?(\.)?[0-9,]*$")
+        result = regex.match(string)
+        return (string == "" or (string.count('.') <= 1 and result is not None))
+
 # Opens GUI for an infinite loop
 if __name__ == '__main__':
     url = 'https://api.exchangerate-api.com/v4/latest/USD'
     converter = realTimeCurrencyConverter(url)
+
     currencyConverterUI(converter)
     mainloop()
